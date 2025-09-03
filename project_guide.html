@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sentient | AI Project Guide Generator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #f2f6fc;
+      padding: 20px;
+      margin: 0;
+    }
+    .app {
+      max-width: 850px;
+      margin: auto;
+      background: #14233a;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      text-align: center;
+    }
+    h1 {
+      color: #3ddc97;
+      margin-bottom: 10px;
+    }
+    h2 {
+      color: #ffcc00;
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .mascot {
+      width: 120px;
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      text-align: left;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #1b2b45;
+      color: #fff;
+      font-size: 15px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #3ddc97;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #34c488;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    #output {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background: #0e1a2c;
+      border: 1px solid #333;
+      padding: 15px;
+      border-radius: 8px;
+      height: 320px;
+      overflow-y: auto;
+      text-align: left;
+    }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 14px;
+      color: #b0c4de;
+    }
+    footer strong {
+      color: #ffcc00;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Mascot at top -->
+    
+
+    <h1>🚀 Sentient</h1>
+    <h2>AI Project Guide Generator</h2>
+
+    <label for="idea">Enter your project idea:</label>
+    <input type="text" id="idea" placeholder="e.g., AI-powered note-taking app" />
+
+    <button id="generateBtn">✨ Generate Guide</button>
+
+    <div id="output">Your guide will appear here...</div>
+  </div>
+
+  <footer>
+    Designed & Developed by <strong>Naina</strong> | Powered by <strong>Sentient x Fireworks AI</strong>
+  </footer>
+
+  <script>
+    // 🔑 API key (only for local dev — remove before deploying)
+    const API_KEY = "fw_3Zb7ybGVNJBFifXV4B8y7WCA";
+    const DEFAULT_MODEL = "accounts/sentientfoundation-serverless/models/dobby-mini-unhinged-plus-llama-3-1-8b";
+
+    const SYSTEM_PROMPT =
+      "You are an AI project guide that generates highly technical, structured responses. " +
+      "Always break down the project into clear steps with: " +
+      "1. Tech stack (frameworks, libraries, tools) " +
+      "2. Architecture overview " +
+      "3. Implementation steps (frontend, backend, database, deployment) " +
+      "4. Best practices and optimizations " +
+      "5. Possible extensions. " +
+      "Tone should be precise, professional, and technical. " +
+      "Do NOT use casual or rude language.";
+
+    const btn = document.getElementById("generateBtn");
+    const ideaEl = document.getElementById("idea");
+    const output = document.getElementById("output");
+
+    btn.addEventListener("click", async () => {
+      const idea = ideaEl.value.trim();
+      if (!idea) {
+        alert("Please enter a project idea.");
+        return;
+      }
+
+      btn.disabled = true;
+      output.textContent = `⚡ Generating your project guide with ${DEFAULT_MODEL}...`;
+
+      try {
+        const res = await fetch("https://api.fireworks.ai/inference/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${API_KEY}`
+          },
+          body: JSON.stringify({
+            model: DEFAULT_MODEL,
+            messages: [
+              { role: "system", content: SYSTEM_PROMPT },
+              { role: "user", content: `Give me a detailed step-by-step technical project guide for: ${idea}` }
+            ],
+            max_tokens: 1200
+          })
+        });
+
+        const data = await res.json();
+        const guide = data?.choices?.[0]?.message?.content || "No response received.";
+        output.textContent = guide;
+      } catch (err) {
+        output.textContent = "Error: " + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
